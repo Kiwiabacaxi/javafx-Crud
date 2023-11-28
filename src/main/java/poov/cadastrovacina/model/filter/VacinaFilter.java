@@ -1,11 +1,13 @@
 package poov.cadastrovacina.model.filter;
 
 public class VacinaFilter {
-    
+    /*
+     * Filtro para a classe Vacina
+     */
     private Long codigo;
     private String nome;
     private String descricao;
-    
+
     public VacinaFilter() {
     }
 
@@ -34,14 +36,14 @@ public class VacinaFilter {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
-    
+
     public void setCodigo(Long codigo) {
         this.codigo = codigo;
     }
 
     @Override
     public String toString() {
-        return "codigo: " + codigo + "\nnome: " + nome + "\ndescricao: " + descricao;
+        return "VacinaFilter{" + "codigo=" + codigo + ", nome=" + nome + ", descricao=" + descricao + '}';
     }
 
 }

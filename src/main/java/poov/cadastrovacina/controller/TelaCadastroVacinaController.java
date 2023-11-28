@@ -43,8 +43,7 @@ public class TelaCadastroVacinaController {
             vacina.setNome(textFieldNome.getText());
             vacina.setDescricao(textAreaDescricao.getText());
 
-            ConnectionFactory conexaoFactory = 
-                new ConexaoFactoryPostgreSQL("localhost:5432/crud", "postgres", "12345");
+            ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "kiwi", "admin");
             DAOFactory factory = new DAOFactory(conexaoFactory);
             try {
                 factory.abrirConexao();

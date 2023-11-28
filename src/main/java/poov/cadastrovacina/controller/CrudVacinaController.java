@@ -17,6 +17,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -27,17 +28,17 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import poov.cadastrovacina.App;
 import poov.cadastrovacina.dao.ConexaoFactoryPostgreSQL;
+import poov.cadastrovacina.dao.PessoaDAO;
 import poov.cadastrovacina.dao.VacinaDAO;
 import poov.cadastrovacina.dao.core.ConnectionFactory;
 import poov.cadastrovacina.dao.core.DAOFactory;
+import poov.cadastrovacina.model.Pessoa;
 import poov.cadastrovacina.model.Situacao;
 import poov.cadastrovacina.model.Vacina;
+import poov.cadastrovacina.model.filter.PessoaFilter;
 import poov.cadastrovacina.model.filter.VacinaFilter;
 
 public class CrudVacinaController implements Initializable {
-
-    @FXML
-    private Button LoteButton;
 
     @FXML
     private TableView<Vacina> vacinaTableView;
@@ -61,6 +62,15 @@ public class CrudVacinaController implements Initializable {
     private TextField nomeTextField;
 
     @FXML
+    private TextField codigoTextFieldPessoa;
+
+    @FXML
+    private TextField nomeTextFieldPessoa;
+
+    @FXML
+    private TextField cpfTextFieldPessoa;
+
+    @FXML
     private Button editarButton;
 
     @FXML
@@ -81,39 +91,59 @@ public class CrudVacinaController implements Initializable {
     @FXML
     private Button removerButton;
 
+    @FXML
+    private DatePicker outputDatePicker1;
+
+    @FXML
+    private DatePicker inputDatePicker1;
+
+    // buttons de pessoa
+
+    @FXML
+    private TableView<Pessoa> pessoaTableView;
+
+    @FXML
+    private TableColumn<Pessoa, Long> codigoTableColumnPessoa;
+
+    @FXML
+    private TableColumn<Pessoa, String> nomeTableColumnPessoa;
+
+    @FXML
+    private TableColumn<Pessoa, String> cpfTableColumnPessoa;
+
+    @FXML
+    private TableColumn<Pessoa, String> dataNascimentoTableColumnPessoa;
+
     private Stage stageCadastro;
     private Stage stageAlterar;
-    // private Stage stageLote;
     private TelaAlterarVacinaController telaAlterarVacinaController;
-
-    // private TelaProcurarLoteController telaLoteController;
 
     private DAOFactory factory;
 
     public CrudVacinaController() {
-        ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "postgres", "12345");
+        ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "kiwi", "admin");
         factory = new DAOFactory(conexaoFactory);
     }
 
-    // @FXML
-    // void Lotebuttonclicado(ActionEvent event) {
-    // if (stageLote.getOwner() == null) {
-    // stageLote.initOwner(((Button) event.getSource()).getScene().getWindow());
-    // }
-    // stageLote.showAndWait();
-
-    // }
-
     @FXML
     void editarButtonClicado(ActionEvent event) throws SQLException {
-        if (vacinaTableView.getSelectionModel().getSelectedIndex() != -1) {
+
+        // Verifica se tem algum item selecionado
+        if (vacinaTableView.getSelectionModel().getSelectedIndex() != -1) { // -1 significa que não tem nada selecionado
+
+            // Abre a tela de alteração
             Vacina vacina = vacinaTableView.getSelectionModel().getSelectedItem();
             telaAlterarVacinaController.setVacina(vacina);
+
+            // Abre a tela de alteração
             if (stageAlterar.getOwner() == null) {
                 stageAlterar.initOwner(((Button) event.getSource()).getScene().getWindow());
             }
+
+            // Atualizar a tela para povoar
             stageAlterar.showAndWait();
             pesquisarButtonClicado(event);
+
         } else {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Alteração");
@@ -128,11 +158,23 @@ public class CrudVacinaController implements Initializable {
         codigoTextField.setText("");
         nomeTextField.setText("");
         descricaoTextField.setText("");
+
+        // Chamar a função de busca de vacinas para repovoar a lista
+        try {
+            pesquisarButtonClicado(null);
+        } catch (SQLException e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("ERRO");
+            alert.setHeaderText("Erro");
+            alert.setContentText("Erro ao limpar a tabela!");
+            alert.showAndWait();
+        }
     }
 
     @FXML
     void fecharButtonClicado(ActionEvent event) {
-        ((Button) event.getSource()).getScene().getWindow().hide();
+        // Kill the application
+        Platform.exit();
     }
 
     @FXML
@@ -149,25 +191,33 @@ public class CrudVacinaController implements Initializable {
         // Filtro
         VacinaFilter filtro = new VacinaFilter();
 
-        // Caso o evento seja nulo, significa que o método foi chamado pelo
-        if (event != null) {
-            pesquisarButtonClicado(event);
-        }
-
-        // Preenche o filtro
+        // Se o campo de texto do código não estiver vazio
         if (!codigoTextField.getText().isBlank()) {
+            // Converte o texto do campo de código para Long e define o código do filtro
             filtro.setCodigo(Long.parseLong(codigoTextField.getText()));
         }
+
+        // Se o campo de texto do nome não estiver vazio
         if (!nomeTextField.getText().isBlank()) {
+            // Define o nome do filtro como o texto do campo de nome
             filtro.setNome(nomeTextField.getText());
         }
+
+        // Se o campo de texto da descrição não estiver vazio
         if (!descricaoTextField.getText().isBlank()) {
+            // Define a descrição do filtro como o texto do campo de descrição
             filtro.setDescricao(descricaoTextField.getText());
         }
+
         try {
+            // Abre a conexão
             factory.abrirConexao();
+
+            // Pesquisa
             VacinaDAO dao = factory.getDAO(VacinaDAO.class);
             List<Vacina> vacinas = dao.pesquisar(filtro);
+
+            // Preenche a tabela
             vacinaTableView.getItems().clear();
             vacinaTableView.getItems().addAll(vacinas);
         } finally {
@@ -177,8 +227,42 @@ public class CrudVacinaController implements Initializable {
     }
 
     @FXML
-    void pesquisarPessoaButtonClicado(ActionEvent event) {
-        // TODO
+    void pesquisarPessoaButtonClicado(ActionEvent event) throws SQLException {
+        // Filtro
+        PessoaFilter filtro = new PessoaFilter();
+
+        // Se o campo de texto do código não estiver vazio
+        if (!codigoTextFieldPessoa.getText().isBlank()) {
+            // Converte o texto do campo de código para Long e define o código do filtro
+            filtro.setCodigo(Long.parseLong(codigoTextFieldPessoa.getText()));
+        }
+
+        // Se o campo de texto do nome não estiver vazio
+        if (!nomeTextFieldPessoa.getText().isBlank()) {
+            // Define o nome do filtro como o texto do campo de nome
+            filtro.setNome(nomeTextFieldPessoa.getText());
+        }
+
+        // Se o campo de texto da descrição não estiver vazio
+        if (!cpfTextFieldPessoa.getText().isBlank()) {
+            // Define a descrição do filtro como o texto do campo de descrição
+            filtro.setCpf(cpfTextFieldPessoa.getText());
+        }
+
+        try {
+            // Abre a conexão
+            factory.abrirConexao();
+
+            // Pesquisa
+            PessoaDAO dao = factory.getDAO(PessoaDAO.class);
+            List<Pessoa> pessoas = dao.pesquisar(filtro);
+
+            // Preenche a tabela
+            pessoaTableView.getItems().clear();
+            pessoaTableView.getItems().addAll(pessoas);
+        } finally {
+            factory.fecharConexao();
+        }
     }
 
     @FXML
@@ -216,21 +300,13 @@ public class CrudVacinaController implements Initializable {
         pesquisarButtonClicado(event);
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        // Inicializa a tabela
-        codigoTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, Long>("codigo"));
-        nomeTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, String>("nome"));
-        descricaoTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, String>("descricao"));
-        vacinaTableView.setPlaceholder(new Label("Não existem Vacinas para serem exibidas."));
-
-        // permite apenas números no campo de código
-        TextFormatter<String> formatterApenasDigitos = new TextFormatter<>(change -> {
+    // Filtra o texto do campo de código para permitir apenas números
+    private TextFormatter<String> createNumberOnlyTextFormatter() {
+        return new TextFormatter<>(change -> {
             if (!change.isContentChange()) {
                 return change;
             }
             String text = change.getControlNewText();
-            System.out.println(text);
             if (text.length() == 0) {
                 // permite campo vazio
                 return change;
@@ -244,14 +320,39 @@ public class CrudVacinaController implements Initializable {
             }
             return change;
         });
-        codigoTextField.setTextFormatter(formatterApenasDigitos);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Inicializa a tabela de vacina
+        codigoTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, Long>("codigo"));
+        nomeTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, String>("nome"));
+        descricaoTableColumn.setCellValueFactory(new PropertyValueFactory<Vacina, String>("descricao"));
+        vacinaTableView.setPlaceholder(new Label("Não existem Vacinas para serem exibidas."));
+
+        // Inicializa a tabela de pessoa
+        codigoTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, Long>("codigo"));
+        nomeTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("nome"));
+        cpfTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("cpf"));
+        dataNascimentoTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("dataNascimento"));
+        pessoaTableView.setPlaceholder(new Label("Não existem Pessoas para serem exibidas."));
+
+        // codigoTextField.setTextFormatter(formatterOnlyNumbers);
+        codigoTextField.setTextFormatter(createNumberOnlyTextFormatter());
+        codigoTextFieldPessoa.setTextFormatter(createNumberOnlyTextFormatter());
+
+        // trocar o formato das datas para dd/MM/yyyy
+        inputDatePicker1.setConverter(App.datePickerFormatter);
 
         Parent parent;
         FXMLLoader fxmlLoader;
         try {
 
-            // Atualizar a tela para povoar
+            // Atualizar a tela para povoar a tabela de vacinas
             pesquisarButtonClicado(null);
+
+            // Atualizar a tela para povoar a tabela de pessoas
+            pesquisarPessoaButtonClicado(null);
 
             stageCadastro = new Stage();
             fxmlLoader = new FXMLLoader(App.class.getResource("/poov/cadastrovacina/TelaCadastroVacina.fxml"));
@@ -272,18 +373,6 @@ public class CrudVacinaController implements Initializable {
             stageAlterar.setTitle("Alteração de Vacina");
             stageAlterar.setResizable(false);
             stageAlterar.initModality(Modality.WINDOW_MODAL);
-
-            // stageLote = new Stage();
-            // fxmlLoader = new
-            // FXMLLoader(App.class.getResource("/poov/cadastrovacina/TelaLoteVacina.fxml"));
-            // parent = fxmlLoader.load();
-            // telaLoteController = fxmlLoader.getController();
-            // telaLoteController.setDAOFactory(factory);
-            // Scene sceneLote = new Scene(parent);
-            // stageLote.setScene(sceneLote);
-            // stageLote.setTitle("Lote de Vacina");
-            // stageLote.setResizable(false);
-            // stageLote.initModality(Modality.WINDOW_MODAL);
 
         } catch (Exception e) {
             Alert alert = new Alert(AlertType.ERROR);
