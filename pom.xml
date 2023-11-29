@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>poov</groupId>
+    <groupId>com.javafxvacina</groupId>
     <artifactId>cadastrovacina</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -54,7 +54,7 @@
                             <launcher>App</launcher>
                             <jlinkImageName>App</jlinkImageName>
                             <jlinkZipName>App</jlinkZipName>
-                            <mainClass>JavaFXApplication/poov.cadastrovacina.App</mainClass>
+                            <mainClass>JavaFXApplication/com.javafxvacina.cadastrovacina.App</mainClass>
                         </configuration>
                     </execution>
                 </executions>
@@ -67,9 +67,9 @@
                 <configuration>
                     <name>App</name>
                     <appVersion>0.0.1</appVersion>
-                    <vendor>poov</vendor>
+                    <vendor>com.javafxvacina</vendor>
                     <destination>target/Runtime</destination>
-                    <module>JavaFXApplication/poov.cadastrovacina.App</module>
+                    <module>JavaFXApplication/com.javafxvacina.cadastrovacina.App</module>
                     <runtimeImage>target/App</runtimeImage>
                     <type>DEB</type>
                     <winDirChooser>true</winDirChooser>
