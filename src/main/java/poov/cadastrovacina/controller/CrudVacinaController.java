@@ -452,6 +452,7 @@ public class CrudVacinaController implements Initializable {
             // Atualizar a tela para povoar a tabela de pessoas
             pesquisarPessoaButtonClicado(null);
 
+            // Tela de cadastro
             stageCadastro = new Stage();
             fxmlLoader = new FXMLLoader(App.class.getResource("/poov/cadastrovacina/TelaCadastroVacina.fxml"));
             parent = fxmlLoader.load();
@@ -461,6 +462,7 @@ public class CrudVacinaController implements Initializable {
             stageCadastro.setResizable(false);
             stageCadastro.initModality(Modality.WINDOW_MODAL);
 
+            // Tela de alterar
             stageAlterar = new Stage();
             fxmlLoader = new FXMLLoader(App.class.getResource("/poov/cadastrovacina/TelaAlterarVacina.fxml"));
             parent = fxmlLoader.load();
