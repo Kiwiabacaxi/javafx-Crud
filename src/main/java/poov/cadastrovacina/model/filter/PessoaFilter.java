@@ -11,6 +11,7 @@ public class PessoaFilter {
     private String nome;
     private String cpf;
     private LocalDate dataNascimento;
+    private LocalDate dataNascimentoAte;
     private Situacao situacao;
 
     public PessoaFilter() {
@@ -55,6 +56,14 @@ public class PessoaFilter {
 
     public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
+    }
+
+    public LocalDate getDataNascimentoAte() {
+        return dataNascimentoAte;
+    }
+
+    public void setDataNascimentoAte(LocalDate dataNascimentoAte) {
+        this.dataNascimentoAte = dataNascimentoAte;
     }
 
     public Situacao getSituacao() {

@@ -99,9 +99,11 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
         if (filtro.getCpf() != null) {
             query += " AND LOWER(cpf) like ?";
         }
-        if (filtro.getDataNascimento() != null) {
-            query += " AND dataNascimento = ?";
+
+        if (filtro.getDataNascimento() != null && filtro.getDataNascimentoAte() != null) {
+            query += " AND dataNascimento BETWEEN ? AND ?";
         }
+
         if (filtro.getSituacao() != null) {
             query += " AND situacao = ?";
         }
@@ -117,8 +119,13 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
             if (filtro.getCpf() != null) {
                 statement.setString(parametro++, "%" + filtro.getCpf().toLowerCase() + "%");
             }
-            if (filtro.getDataNascimento() != null) {
-                statement.setObject(parametro++, filtro.getDataNascimento());
+            // if (filtro.getDataNascimento() != null) {
+            // statement.setDate(parametro++,
+            // java.sql.Date.valueOf(filtro.getDataNascimento()));
+            // }
+            if (filtro.getDataNascimento() != null && filtro.getDataNascimentoAte() != null) {
+                statement.setDate(parametro++, java.sql.Date.valueOf(filtro.getDataNascimento()));
+                statement.setDate(parametro++, java.sql.Date.valueOf(filtro.getDataNascimentoAte()));
             }
             if (filtro.getSituacao() != null) {
                 statement.setString(parametro++, filtro.getSituacao().toString());

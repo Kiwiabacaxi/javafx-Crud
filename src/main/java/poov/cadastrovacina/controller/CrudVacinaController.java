@@ -2,10 +2,15 @@ package poov.cadastrovacina.controller;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
+
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,12 +31,16 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import javafx.util.converter.LocalDateStringConverter;
 import poov.cadastrovacina.App;
+import poov.cadastrovacina.dao.AplicacaoDAO;
 import poov.cadastrovacina.dao.ConexaoFactoryPostgreSQL;
 import poov.cadastrovacina.dao.PessoaDAO;
 import poov.cadastrovacina.dao.VacinaDAO;
 import poov.cadastrovacina.dao.core.ConnectionFactory;
 import poov.cadastrovacina.dao.core.DAOFactory;
+import poov.cadastrovacina.model.Aplicacao;
 import poov.cadastrovacina.model.Pessoa;
 import poov.cadastrovacina.model.Situacao;
 import poov.cadastrovacina.model.Vacina;
@@ -86,13 +95,16 @@ public class CrudVacinaController implements Initializable {
     private Button pesquisarPessoaButton;
 
     @FXML
+    private Button aplicarButton;
+
+    @FXML
     private Button limparButton;
 
     @FXML
     private Button removerButton;
 
     @FXML
-    private DatePicker outputDatePicker1;
+    private DatePicker inputDatePicker2;
 
     @FXML
     private DatePicker inputDatePicker1;
@@ -249,6 +261,22 @@ public class CrudVacinaController implements Initializable {
             filtro.setCpf(cpfTextFieldPessoa.getText());
         }
 
+        // Se a data de nascimento não for nula
+        if (inputDatePicker1.getValue() != null) {
+            // Define a data de nascimento do filtro como a data selecionada no DatePicker
+            filtro.setDataNascimento(inputDatePicker1.getValue());
+        }
+        // Se ambas as datas não forem nulas
+        if (inputDatePicker1.getValue() != null && inputDatePicker2.getValue() != null) {
+            // Define as datas de início e fim do filtro
+            filtro.setDataNascimento(inputDatePicker1.getValue());
+            filtro.setDataNascimentoAte(inputDatePicker2.getValue());
+
+            // Quick log
+            System.out.println("Data de nascimento: " + filtro.getDataNascimento());
+            System.out.println("Data de nascimento até: " + filtro.getDataNascimentoAte());
+        }
+
         try {
             // Abre a conexão
             factory.abrirConexao();
@@ -300,6 +328,68 @@ public class CrudVacinaController implements Initializable {
         pesquisarButtonClicado(event);
     }
 
+    @FXML
+    void aplicarButtonClicado(ActionEvent event) throws SQLException {
+        if (vacinaTableView.getSelectionModel().getSelectedIndex() != -1) {
+            Vacina vacina = vacinaTableView.getSelectionModel().getSelectedItem();
+            if (pessoaTableView.getSelectionModel().getSelectedIndex() != -1) {
+                Pessoa pessoa = pessoaTableView.getSelectionModel().getSelectedItem();
+                ButtonType sim = new ButtonType("Sim", ButtonBar.ButtonData.OK_DONE);
+                ButtonType nao = new ButtonType("Não", ButtonBar.ButtonData.CANCEL_CLOSE);
+                Alert alert = new Alert(AlertType.CONFIRMATION,
+                        "Você tem certeza que quer aplicar a vacina " + vacina.getNome() + " em " + pessoa.getNome()
+                                + "?",
+                        sim, nao);
+                alert.setTitle("Aplicação");
+                alert.setHeaderText("Aplicação de Vacina");
+
+                Optional<ButtonType> option = alert.showAndWait();
+                if (option.get().equals(sim)) {
+                    try {
+                        factory.abrirConexao();
+                        AplicacaoDAO dao = factory.getDAO(AplicacaoDAO.class);
+                        Aplicacao aplicacao = new Aplicacao();
+                        aplicacao.setPessoa(pessoa);
+                        aplicacao.setVacina(vacina);
+                        // Aqui você precisa definir a data e a situação da aplicação
+                        aplicacao.setData(LocalDate.now());
+                        aplicacao.setSituacao(Situacao.ATIVO);
+                        dao.create(aplicacao);
+
+                    } finally {
+                        factory.fecharConexao();
+                    }
+                }
+            } else {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Aplicação");
+                alert.setHeaderText("Aplicação de Vacina");
+                alert.setContentText("Selecione uma pessoa na tabela para aplicar a vacina!");
+                alert.showAndWait();
+            }
+        } else {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Aplicação");
+            alert.setHeaderText("Aplicação de Vacina");
+            alert.setContentText("Selecione uma vacina na tabela para aplicar!");
+            alert.showAndWait();
+        }
+        pesquisarButtonClicado(event);
+    }
+
+    private void applyDateFilter(DatePicker datePicker) {
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            // Regex para verificar se o texto é uma data válida
+            if (newText.matches("^\\d{0,2}/?\\d{0,2}/?\\d{0,4}$")) {
+                return change;
+            }
+            return null;
+        };
+
+        datePicker.getEditor().setTextFormatter(new TextFormatter<>(filter));
+    }
+
     // Filtra o texto do campo de código para permitir apenas números
     private TextFormatter<String> createNumberOnlyTextFormatter() {
         return new TextFormatter<>(change -> {
@@ -322,6 +412,10 @@ public class CrudVacinaController implements Initializable {
         });
     }
 
+    // Filtra as datas
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    StringConverter<LocalDate> converter = new LocalDateStringConverter(formatter, formatter);
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Inicializa a tabela de vacina
@@ -334,15 +428,19 @@ public class CrudVacinaController implements Initializable {
         codigoTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, Long>("codigo"));
         nomeTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("nome"));
         cpfTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("cpf"));
-        dataNascimentoTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("dataNascimento"));
+        dataNascimentoTableColumnPessoa.setCellValueFactory(cellData -> {
+            LocalDate date = cellData.getValue().getDataNascimento();
+            return new SimpleObjectProperty<>(date != null ? formatter.format(date) : "");
+        });
         pessoaTableView.setPlaceholder(new Label("Não existem Pessoas para serem exibidas."));
 
         // codigoTextField.setTextFormatter(formatterOnlyNumbers);
         codigoTextField.setTextFormatter(createNumberOnlyTextFormatter());
         codigoTextFieldPessoa.setTextFormatter(createNumberOnlyTextFormatter());
 
-        // trocar o formato das datas para dd/MM/yyyy
-        inputDatePicker1.setConverter(App.datePickerFormatter);
+        // Only Dates
+        applyDateFilter(inputDatePicker1);
+        applyDateFilter(inputDatePicker2);
 
         Parent parent;
         FXMLLoader fxmlLoader;
