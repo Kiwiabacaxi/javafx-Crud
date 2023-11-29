@@ -1,4 +1,3 @@
--- Active: 1701190942105@@localhost@5432@crud
 -- Pessoa
 CREATE TABLE public.pessoa
 (

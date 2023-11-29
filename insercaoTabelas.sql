@@ -40,7 +40,6 @@ INSERT INTO pessoa (nome, cpf, dataNascimento, situacao) VALUES
 ('Ronalda', '12345678920', '2000-01-20', 'ATIVO'),
 ('Romeu', '12345678921', '2000-01-21', 'ATIVO');
 
-
 -- Limpar tabelas
 DELETE FROM aplicacao;
 DELETE FROM vacina;
