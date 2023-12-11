@@ -18,6 +18,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
         super(conexao);
     }
 
+    // Definição das queries SQL
     private static final String FIND_ALL_QUERY = "SELECT codigo, nome, descricao, situacao FROM vacina WHERE situacao = 'ATIVO' ";
     private static final String FIND_BY_KEY_QUERY = FIND_ALL_QUERY + "AND codigo=? ";
     private static final String FIND_BY_NAME_LIKE_QUERY = FIND_ALL_QUERY + "AND upper(nome) like upper(?)";
@@ -27,6 +28,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
 
     @Override
     protected Vacina toEntity(ResultSet resultSet) throws SQLException {
+        // Converte o ResultSet em uma entidade Vacina
         Vacina vacina = new Vacina();
         vacina.setCodigo(resultSet.getLong("codigo"));
         vacina.setNome(resultSet.getString("nome"));
@@ -41,6 +43,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
 
     @Override
     protected void addParameters(PreparedStatement resultSet, Vacina entity) throws SQLException {
+        // Adiciona os parâmetros ao PreparedStatement
         resultSet.setString(1, entity.getNome());
         resultSet.setString(2, entity.getDescricao());
         resultSet.setString(3, entity.getSituacao().toString());
@@ -49,6 +52,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
         }
     }
 
+    // Métodos que retornam as queries SQL
     @Override
     protected String findByKeyQuery() {
         return FIND_BY_KEY_QUERY;
@@ -75,6 +79,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
     }
 
     public List<Vacina> findByNameLike(String nome) {
+        // Busca vacinas pelo nome
         try {
             PreparedStatement statement = connection.prepareStatement(FIND_BY_NAME_LIKE_QUERY);
             statement.setString(1, "%" + nome + "%");
@@ -88,26 +93,30 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
 
     @Override
     protected void setKeyInStatementFromEntity(PreparedStatement statement, Vacina entity) throws SQLException {
+        // Define a chave no PreparedStatement a partir da entidade
         statement.setLong(1, entity.getCodigo());
     }
-
+    
     @Override
     protected void setKeyInStatement(PreparedStatement statement, Long key) throws SQLException {
+        // Define a chave no PreparedStatement
         statement.setLong(1, key);
     }
 
     @Override
     protected void setKeyInEntity(ResultSet rs, Vacina entity) throws SQLException {
+        // Define a chave na entidade
         entity.setCodigo(rs.getLong(1));
     }
 
     public List<Vacina> pesquisar(VacinaFilter filtro) {
+        // Pesquisa vacinas com base no filtro
         int parametro = 1;
         String query = "SELECT codigo, nome, descricao, situacao FROM vacina WHERE situacao = 'ATIVO' ";
-
+    
         if (filtro.getCodigo() != null) {
             query += "AND codigo = ?";
-        } 
+        }
         if (filtro.getNome() != null) {
             query += " AND LOWER(nome) like ?";
         }
@@ -127,6 +136,7 @@ public class VacinaDAO extends GenericJDBCDAO<Vacina, Long> {
             if (filtro.getDescricao() != null) {
                 statement.setString(parametro, "%" + filtro.getDescricao().toLowerCase() + "%");
             }
+            // Printa a query SQL no console - PARA FINS DE DEGUG
             System.out.println(statement.toString());
             ResultSet resultSet = statement.executeQuery();
             return toEntityList(resultSet);

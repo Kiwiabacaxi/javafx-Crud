@@ -7,16 +7,18 @@ public class PessoaFilter {
     /*
      * Filtro para a classe Pessoa
      */
-    private Long codigo;
-    private String nome;
-    private String cpf;
-    private LocalDate dataNascimento;
-    private LocalDate dataNascimentoAte;
-    private Situacao situacao;
+    private Long codigo; // Código da pessoa para filtrar
+    private String nome; // Nome da pessoa para filtrar
+    private String cpf; // CPF da pessoa para filtrar
+    private LocalDate dataNascimento; // Data de nascimento da pessoa para filtrar
+    private LocalDate dataNascimentoAte; // Data de nascimento até a qual filtrar
+    private Situacao situacao; // Situação da pessoa para filtrar
 
+    // Construtor padrão
     public PessoaFilter() {
     }
 
+    // Construtor com parâmetros de código, nome, cpf, data de nascimento e situação
     public PessoaFilter(Long codigo, String nome, String cpf, LocalDate dataNascimento, Situacao situacao) {
         this.codigo = codigo;
         this.nome = nome;
@@ -25,7 +27,7 @@ public class PessoaFilter {
         this.situacao = situacao;
     }
 
-    // getters and setters...
+    // Getters e setters para os atributos
     public Long getCodigo() {
         return codigo;
     }
@@ -74,6 +76,7 @@ public class PessoaFilter {
         this.situacao = situacao;
     }
 
+    // Método toString para representar o objeto como uma string
     @Override
     public String toString() {
         return "PessoaFilter{" + "codigo=" + codigo + ", nome=" + nome + ", cpf=" + cpf + ", dataNascimento="

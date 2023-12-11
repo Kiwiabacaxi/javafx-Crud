@@ -2,27 +2,32 @@ package poov.cadastrovacina.model;
 
 public class Vacina {
 
-    private Long codigo;
-    private String nome;
-    private String descricao;
-    private Situacao situacao = Situacao.ATIVO;
+    // Atributos
+    private Long codigo; // Identificador único para a vacina
+    private String nome; // Nome da vacina
+    private String descricao; // Descrição da vacina
+    private Situacao situacao = Situacao.ATIVO; // Status da vacina, padrão é ATIVO
 
+    // Construtor padrão
     public Vacina() {
-        nome = "Sem nome";
-        descricao = "Sem descricao";
+        nome = "Sem nome"; // Nome padrão
+        descricao = "Sem descricao"; // Descrição padrão
     }
 
+    // Construtor com parâmetros de nome e descrição
     public Vacina(String nome, String descricao) {
         this.nome = nome;
         this.descricao = descricao;
     }
 
+    // Construtor com parâmetros de código, nome e descrição
     public Vacina(Long codigo, String nome, String descricao) {
         this.codigo = codigo;
         this.nome = nome;
         this.descricao = descricao;
     }
 
+    // Getters e setters para os atributos
     public Long getCodigo() {
         return codigo;
     }
@@ -55,11 +60,13 @@ public class Vacina {
         this.situacao = situacao;
     }
 
+    // Método toString para representar o objeto como uma string
     @Override
     public String toString() {
         return "codigo: " + codigo + "\nnome: " + nome + "\ndescricao: " + descricao + "\nsituacao: " + situacao;
     }
 
+    // Método hashCode para fazer o hash do objeto
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -68,6 +75,7 @@ public class Vacina {
         return result;
     }
 
+    // Método equals para comparar dois objetos
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

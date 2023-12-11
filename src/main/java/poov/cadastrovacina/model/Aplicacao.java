@@ -4,18 +4,21 @@ import java.time.LocalDate;
 
 public class Aplicacao {
 
-    private Long codigo;
-    private LocalDate data;
-    private Pessoa pessoa;
-    private Vacina vacina;
-    private Situacao situacao;
+    private Long codigo; // Identificador único para a aplicação
+    private LocalDate data; // Data da aplicação
+    private Pessoa pessoa; // Pessoa que recebeu a aplicação
+    private Vacina vacina; // Vacina aplicada
+    private Situacao situacao; // Situação da aplicação
 
+
+    // Construtor padrão
     public Aplicacao() {
-        pessoa = new Pessoa();
-        vacina = new Vacina();
-        situacao = Situacao.ATIVO;
+        pessoa = new Pessoa(); // Pessoa padrão
+        vacina = new Vacina(); // Vacina padrão
+        situacao = Situacao.ATIVO; // Situação padrão é ATIVO
     }
 
+    // Construtor com parâmetros de data, pessoa, vacina e situação
     public Aplicacao(LocalDate data, Pessoa pessoa, Vacina vacina, Situacao situacao) {
         this.data = data;
         this.pessoa = pessoa;
@@ -23,6 +26,7 @@ public class Aplicacao {
         this.situacao = situacao;
     }
 
+    // Construtor com parâmetros de código, data, pessoa, vacina e situação
     public Aplicacao(Long codigo, LocalDate data, Pessoa pessoa, Vacina vacina, Situacao situacao) {
         this.codigo = codigo;
         this.data = data;

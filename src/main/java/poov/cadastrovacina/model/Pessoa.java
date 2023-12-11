@@ -4,24 +4,27 @@ import java.time.LocalDate;
 
 public class Pessoa {
 
-    private Long codigo;
-    private String nome;
-    private String cpf;
-    private LocalDate dataNascimento;
-    private Situacao situacao = Situacao.ATIVO;
+    private Long codigo; // Identificador único para a pessoa
+    private String nome; // Nome da pessoa
+    private String cpf; // CPF da pessoa
+    private LocalDate dataNascimento; // Data de nascimento da pessoa
+    private Situacao situacao = Situacao.ATIVO; // Situação da pessoa, padrão é ATIVO
 
+    // Construtor padrão
     public Pessoa() {
-        nome = "Sem nome";
-        cpf = "Sem cpf";
-        dataNascimento = LocalDate.now();
+        nome = "Sem nome"; // Nome padrão
+        cpf = "Sem cpf"; // CPF padrão
+        dataNascimento = LocalDate.now(); // Data de nascimento padrão é a data atual
     }
 
+    // Construtor com parâmetros de nome, cpf e data de nascimento
     public Pessoa(String nome, String cpf, LocalDate dataNascimento) {
         this.nome = nome;
         this.cpf = cpf;
         this.dataNascimento = dataNascimento;
     }
 
+    // Construtor com parâmetros de código, nome, cpf e data de nascimento
     public Pessoa(Long codigo, String nome, String cpf, LocalDate dataNascimento) {
         this.codigo = codigo;
         this.nome = nome;
@@ -29,7 +32,7 @@ public class Pessoa {
         this.dataNascimento = dataNascimento;
     }
 
-    // getters and setters
+    // Getters e setters para os atributos
     public Long getCodigo() {
         return codigo;
     }
@@ -70,7 +73,7 @@ public class Pessoa {
         this.situacao = situacao;
     }
 
-    // equals, hashCode and toString
+    // Método hashCode para fazer o hash do objeto
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -79,6 +82,7 @@ public class Pessoa {
         return result;
     }
 
+    // Método equals para comparar dois objetos
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -96,6 +100,7 @@ public class Pessoa {
         return true;
     }
 
+    // Método toString para representar o objeto como uma string
     @Override
     public String toString() {
         return "codigo: " + codigo + "\nnome: " + nome + "\ncpf: " + cpf + "\ndataNascimento: " + dataNascimento

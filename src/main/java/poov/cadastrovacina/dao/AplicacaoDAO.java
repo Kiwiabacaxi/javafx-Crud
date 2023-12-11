@@ -11,6 +11,7 @@ import poov.cadastrovacina.model.Situacao;
 
 public class AplicacaoDAO extends GenericJDBCDAO<Aplicacao, Long> {
 
+    // Definição das queries SQL
     private static final String FIND_ALL_QUERY = "SELECT codigo, data, codigo_pessoa, codigo_vacina, situacao FROM aplicacao";
     private static final String FIND_BY_KEY_QUERY = FIND_ALL_QUERY + " WHERE codigo=?";
     private static final String CREATE_QUERY = "INSERT INTO aplicacao (data, codigo_pessoa, codigo_vacina, situacao) VALUES (?, ?, ?, ?)";
@@ -26,7 +27,7 @@ public class AplicacaoDAO extends GenericJDBCDAO<Aplicacao, Long> {
         Aplicacao aplicacao = new Aplicacao();
         aplicacao.setCodigo(resultSet.getLong("codigo"));
         aplicacao.setData(resultSet.getDate("data").toLocalDate());
-        // Aqui você precisa buscar a pessoa e a vacina pelo código e definir no objeto
+        // Aqui vai buscar a pessoa e a vacina pelo código e definir no objeto
         // aplicacao
         aplicacao.setSituacao(Situacao.valueOf(resultSet.getString("situacao")));
         return aplicacao;
@@ -37,7 +38,7 @@ public class AplicacaoDAO extends GenericJDBCDAO<Aplicacao, Long> {
         statement.setDate(1, java.sql.Date.valueOf(entity.getData()));
         statement.setLong(2, entity.getPessoa().getCodigo());
         statement.setLong(3, entity.getVacina().getCodigo());
-        statement.setString(4, entity.getSituacao().toString());
+        statement.setString(4, entity.getSituacao().toString()); // Debug
         if (entity.getCodigo() != null) {
             statement.setLong(5, entity.getCodigo());
         }

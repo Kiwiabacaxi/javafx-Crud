@@ -191,10 +191,14 @@ public class CrudVacinaController implements Initializable {
 
     @FXML
     void novaButtonClicado(ActionEvent event) {
+        System.out.println("Debug: Entrando no método novaButtonClicado"); // Mensagem de debug
         if (stageCadastro.getOwner() == null) {
+            System.out.println("Debug: Definindo o proprietário do stageCadastro"); // Mensagem de debug
             stageCadastro.initOwner(((Button) event.getSource()).getScene().getWindow());
         }
+        System.out.println("Debug: Mostrando o stageCadastro"); // Mensagem de debug
         stageCadastro.showAndWait();
+        System.out.println("Debug: Saindo do método novaButtonClicado"); // Mensagem de debug
     }
 
     @FXML
@@ -295,8 +299,10 @@ public class CrudVacinaController implements Initializable {
 
     @FXML
     void removerButtonClicado(ActionEvent event) throws SQLException {
+        System.out.println("Debug: Entrando no método removerButtonClicado"); // Mensagem de debug
         if (vacinaTableView.getSelectionModel().getSelectedIndex() != -1) {
             Vacina vacina = vacinaTableView.getSelectionModel().getSelectedItem();
+            System.out.println("Debug: Vacina selecionada para remoção: " + vacina.getNome()); // Mensagem de debug
             ButtonType sim = new ButtonType("Sim", ButtonBar.ButtonData.OK_DONE);
             ButtonType nao = new ButtonType("Não", ButtonBar.ButtonData.CANCEL_CLOSE);
             Alert alert = new Alert(AlertType.CONFIRMATION,
@@ -304,16 +310,18 @@ public class CrudVacinaController implements Initializable {
                     sim, nao);
             alert.setTitle("Remoção");
             alert.setHeaderText("Remoção de Vacina");
-
+    
             Optional<ButtonType> option = alert.showAndWait();
-            System.out.println(option);
+            System.out.println("Debug: Opção selecionada: " + option); // Mensagem de debug
             if (option.get().equals(sim)) {
                 try {
+                    System.out.println("Debug: Tentando remover a vacina"); // DEBUG
                     factory.abrirConexao();
                     VacinaDAO dao = factory.getDAO(VacinaDAO.class);
                     vacina.setSituacao(Situacao.INATIVO);
                     dao.update(vacina);
-
+                    System.out.println("Debug: Vacina removida com sucesso"); // DEBUG
+    
                 } finally {
                     factory.fecharConexao();
                 }
@@ -326,14 +334,18 @@ public class CrudVacinaController implements Initializable {
             alert.showAndWait();
         }
         pesquisarButtonClicado(event);
+        System.out.println("Debug: Saindo do método removerButtonClicado"); // DEBUG
     }
 
     @FXML
     void aplicarButtonClicado(ActionEvent event) throws SQLException {
+        System.out.println("Debug: Entrando no método aplicarButtonClicado"); // Mensagem de debug
         if (vacinaTableView.getSelectionModel().getSelectedIndex() != -1) {
             Vacina vacina = vacinaTableView.getSelectionModel().getSelectedItem();
+            System.out.println("Debug: Vacina selecionada: " + vacina.getNome()); // Mensagem de debug
             if (pessoaTableView.getSelectionModel().getSelectedIndex() != -1) {
                 Pessoa pessoa = pessoaTableView.getSelectionModel().getSelectedItem();
+                System.out.println("Debug: Pessoa selecionada: " + pessoa.getNome()); // Mensagem de debug
                 ButtonType sim = new ButtonType("Sim", ButtonBar.ButtonData.OK_DONE);
                 ButtonType nao = new ButtonType("Não", ButtonBar.ButtonData.CANCEL_CLOSE);
                 Alert alert = new Alert(AlertType.CONFIRMATION,
@@ -342,10 +354,12 @@ public class CrudVacinaController implements Initializable {
                         sim, nao);
                 alert.setTitle("Aplicação");
                 alert.setHeaderText("Aplicação de Vacina");
-
+    
                 Optional<ButtonType> option = alert.showAndWait();
+                System.out.println("Debug: Opção selecionada: " + option); // Mensagem de debug
                 if (option.get().equals(sim)) {
                     try {
+                        System.out.println("Debug: Tentando aplicar a vacina"); // Mensagem de debug
                         factory.abrirConexao();
                         AplicacaoDAO dao = factory.getDAO(AplicacaoDAO.class);
                         Aplicacao aplicacao = new Aplicacao();
@@ -355,7 +369,8 @@ public class CrudVacinaController implements Initializable {
                         aplicacao.setData(LocalDate.now());
                         aplicacao.setSituacao(Situacao.ATIVO);
                         dao.create(aplicacao);
-
+                        System.out.println("Debug: Vacina aplicada com sucesso"); // Mensagem de debug
+    
                     } finally {
                         factory.fecharConexao();
                     }
@@ -375,18 +390,25 @@ public class CrudVacinaController implements Initializable {
             alert.showAndWait();
         }
         pesquisarButtonClicado(event);
+        System.out.println("Debug: Saindo do método aplicarButtonClicado"); // Mensagem de debug
     }
 
     private void applyDateFilter(DatePicker datePicker) {
+        // Operador unário para filtrar as mudanças no DatePicker
         UnaryOperator<TextFormatter.Change> filter = change -> {
+            // Obtém o novo texto após a mudança
             String newText = change.getControlNewText();
-            // Regex para verificar se o texto é uma data válida
+            // Regex para verificar se o texto é uma data válida no formato DD/MM/YYYY
+            // Aceita datas parcialmente preenchidas, como DD/MM ou apenas DD - STACKOVERFLOW :DDDDDDD
             if (newText.matches("^\\d{0,2}/?\\d{0,2}/?\\d{0,4}$")) {
+                // Se a nova data é válida, retorna a mudança
                 return change;
             }
+            // Se a nova data não é válida, retorna null para ignorar a mudança
             return null;
         };
-
+    
+        // Aplica o filtro ao editor do DatePicker
         datePicker.getEditor().setTextFormatter(new TextFormatter<>(filter));
     }
 
@@ -428,6 +450,8 @@ public class CrudVacinaController implements Initializable {
         codigoTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, Long>("codigo"));
         nomeTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("nome"));
         cpfTableColumnPessoa.setCellValueFactory(new PropertyValueFactory<Pessoa, String>("cpf"));
+
+        // Formata a data de nascimento - na tabela de pessoas pra ficar mais bonito
         dataNascimentoTableColumnPessoa.setCellValueFactory(cellData -> {
             LocalDate date = cellData.getValue().getDataNascimento();
             return new SimpleObjectProperty<>(date != null ? formatter.format(date) : "");

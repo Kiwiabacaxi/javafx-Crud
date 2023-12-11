@@ -18,6 +18,7 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
         super(conexao);
     }
 
+    // Definição das queries SQL
     private static final String FIND_ALL_QUERY = "SELECT codigo, nome, cpf, dataNascimento, situacao FROM pessoa WHERE situacao = 'ATIVO' ";
     private static final String FIND_BY_KEY_QUERY = FIND_ALL_QUERY + "AND codigo=? ";
     private static final String UPDATE_QUERY = "UPDATE pessoa SET nome=?, cpf=?, dataNascimento=?, situacao=? WHERE codigo=?";
@@ -26,6 +27,7 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
 
     @Override
     protected Pessoa toEntity(ResultSet resultSet) throws SQLException {
+        // Converte o ResultSet em uma entidade Pessoa
         Pessoa pessoa = new Pessoa();
         pessoa.setCodigo(resultSet.getLong("codigo"));
         pessoa.setNome(resultSet.getString("nome"));
@@ -87,6 +89,7 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
     }
 
     public List<Pessoa> pesquisar(PessoaFilter filtro) {
+        // Busca pessoas pelo filtro
         int parametro = 1;
         String query = "SELECT codigo, nome, cpf, dataNascimento, situacao FROM pessoa WHERE situacao = 'ATIVO' ";
 
@@ -124,12 +127,16 @@ public class PessoaDAO extends GenericJDBCDAO<Pessoa, Long> {
             // java.sql.Date.valueOf(filtro.getDataNascimento()));
             // }
             if (filtro.getDataNascimento() != null && filtro.getDataNascimentoAte() != null) {
+                // Se a data de nascimento e a data de nascimento até forem informadas, então
                 statement.setDate(parametro++, java.sql.Date.valueOf(filtro.getDataNascimento()));
                 statement.setDate(parametro++, java.sql.Date.valueOf(filtro.getDataNascimentoAte()));
             }
             if (filtro.getSituacao() != null) {
                 statement.setString(parametro++, filtro.getSituacao().toString());
             }
+
+            // Print da query para debug
+            System.out.println(statement.toString());
 
             ResultSet resultSet = statement.executeQuery();
             List<Pessoa> pessoas = new ArrayList<>();
