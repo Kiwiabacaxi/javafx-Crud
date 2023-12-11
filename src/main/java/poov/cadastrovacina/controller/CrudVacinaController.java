@@ -132,6 +132,7 @@ public class CrudVacinaController implements Initializable {
 
     private DAOFactory factory;
 
+    // TROCAR AQUI O CODIGO E O USUARIO E SENHA DO BANCO - KD O DOTENV BB ???
     public CrudVacinaController() {
         ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "kiwi", "admin");
         factory = new DAOFactory(conexaoFactory);
