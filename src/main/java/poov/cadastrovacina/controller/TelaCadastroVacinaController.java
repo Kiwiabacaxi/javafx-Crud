@@ -44,7 +44,8 @@ public class TelaCadastroVacinaController {
             vacina.setDescricao(textAreaDescricao.getText());
 
             // TROCAR AQUI O CODIGO E O USUARIO E SENHA DO BANCO - KD O DOTENV BB ???
-            ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "kiwi", "admin");
+            // ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "kiwi", "admin");
+            ConnectionFactory conexaoFactory = new ConexaoFactoryPostgreSQL("localhost:5432/crud", "postgres", "12345");
             DAOFactory factory = new DAOFactory(conexaoFactory);
             try {
                 factory.abrirConexao();
